@@ -40,19 +40,19 @@ logger = get_logger(__name__)
 def parse_args():
     parser = argparse.ArgumentParser(description="Finetune a diffusion model for text to audio generation task.")
     parser.add_argument(
-        "--train_file", type=str, default="data/MC3LH_trainA.json",
+        "--train_file", type=str, default="data/MusicBench_train.json",
         help="A csv or a json file containing the training data."
     )
     parser.add_argument(
-        "--validation_file", type=str, default="data/MC3LH_testA.json",
+        "--validation_file", type=str, default="data/MusicBench_testA.json",
         help="A csv or a json file containing the validation data."
     )
     parser.add_argument(
-        "--validation_file2", type=str, default="data/MC3LH_testB.json",
+        "--validation_file2", type=str, default="data/MusicBench_testB.json",
         help="A csv or a json file containing the validation data."
     )
     parser.add_argument(
-        "--test_file", type=str, default="data/MC3LH_testA.json",
+        "--test_file", type=str, default="data/MusicBench_testA.json",
         help="A csv or a json file containing the test data for generation."
     )
     parser.add_argument(
@@ -61,8 +61,7 @@ def parse_args():
     )
     parser.add_argument(
         "--text_encoder_name", type=str,
-        # default="google/flan-t5-large",
-        default="laion/clap-htsat-unfused", # AudioLDM mode when this encoder is used
+        default="google/flan-t5-large",
         help="Text encoder identifier from huggingface.co/models.",
     )
     parser.add_argument(
@@ -74,7 +73,7 @@ def parse_args():
         help="UNet model identifier from huggingface.co/models.",
     )
     parser.add_argument(
-        "--unet_model_config", type=str, default="configs/diffusion_model_config.json", #IF TANGOMUSIC, use MUSIC config = diffusion_model_config_music.json
+        "--unet_model_config", type=str, default="configs/diffusion_model_config.json", #choose between configs/diffusion_model_config.json for Tango and configs/diffusion_model_config_munet.json for Mustango
         help="UNet model config json path.",
     )
     parser.add_argument(
@@ -91,11 +90,11 @@ def parse_args():
         help="Freeze the text encoder model.",
     )
     parser.add_argument(
-        "--text_column", type=str, default="captions",
+        "--text_column", type=str, default="main_caption",
         help="The name of the column in the datasets containing the input texts.",
     )
     parser.add_argument(
-        "--text2_column", type=str, default="old_captions",
+        "--text2_column", type=str, default="alt_caption",
         help="The name of the column in the datasets containing the second set of input texts.",
     )
     parser.add_argument(
@@ -119,7 +118,7 @@ def parse_args():
         help="10% uncondition for training.",
     )
     parser.add_argument(
-        "--uncondition_new", action="store_true", default=False,
+        "--uncondition_all", action="store_true", default=False,
         help="5% uncondition for training.",
     )
     parser.add_argument(
@@ -131,23 +130,23 @@ def parse_args():
         help="Allow preset sentence dropping when loading the data.",
     )
     parser.add_argument(
-        "--augmented_dataset", action="store_true", default=False,
+        "--random_pick_text_column", action="store_true", default=False,
         help="Allow random choice of original/chatgpt prompts when dataloading. (augmented dataset)",
     )
     parser.add_argument(
-        "--model_type", type=str, default="TangoMusic", #or "Tango"
-        help="Pick model between Tango and TangoMusic!",
+        "--model_type", type=str, default="Mustango", #or "Tango"
+        help="Pick model between Tango and Mustango! Don't forget to change the diffusion config too!",
     )
     parser.add_argument(
         "--prefix", type=str, default=None,
         help="Add prefix in text prompts.",
     )
     parser.add_argument(
-        "--per_device_train_batch_size", type=int, default=2,
+        "--per_device_train_batch_size", type=int, default=1,
         help="Batch size (per device) for the training dataloader.",
     )
     parser.add_argument(
-        "--per_device_eval_batch_size", type=int, default=2,
+        "--per_device_eval_batch_size", type=int, default=1,
         help="Batch size (per device) for the validation dataloader.",
     )
     parser.add_argument(
@@ -159,7 +158,7 @@ def parse_args():
         help="Weight decay to use."
     )
     parser.add_argument(
-        "--num_train_epochs", type=int, default=200,
+        "--num_train_epochs", type=int, default=100,
         help="Total number of training epochs to perform."
     )
     parser.add_argument(
@@ -208,7 +207,7 @@ def parse_args():
         help="Whether the various states should be saved at the end of every 'epoch' or 'best' whenever validation loss decreases.",
     )
     parser.add_argument(
-        "--save_every", type=int, default=20,
+        "--save_every", type=int, default=5,
         help="Save model after every how many epochs when checkpointing_steps is set to best."
     )
     parser.add_argument(
@@ -250,7 +249,6 @@ class Text2AudioDataset(Dataset):
         self.inputs = [prefix + inp for inp in inputs]
         self.audios = list(dataset[audio_column])
         self.beats = list(dataset[beats_column])#TODO
-        # self.chords = list([dataset[chords_time_column], dataset[chords_column]])
         self.chords = list(dataset[chords_column])
         self.chords_time = list(dataset[chords_time_column])
         self.indices = list(range(len(self.inputs)))
@@ -276,8 +274,8 @@ class Text2AudioDataset(Dataset):
     def collate_fn(self, data):
         dat = pd.DataFrame(data)
         return [dat[i].tolist() for i in dat]
-    
-class Text2AudioDataset_ext(Dataset):
+
+class Text2AudioDataset_ext(Dataset): #This dataset uses 2 text columns, so that you can pick between original/chatgpt rephrased caption during dataloading!
     def __init__(self, dataset, prefix, text_column, text2_column, audio_column, beats_column, chords_column, chords_time_column, num_examples=-1):
 
         inputs = list(dataset[text_column])
@@ -286,7 +284,6 @@ class Text2AudioDataset_ext(Dataset):
         self.inputs2 = [prefix + inp for inp in inputs2]
         self.audios = list(dataset[audio_column])
         self.beats = list(dataset[beats_column])#TODO
-        # self.chords = list([dataset[chords_time_column], dataset[chords_column]])
         self.chords = list(dataset[chords_column])
         self.chords_time = list(dataset[chords_time_column])
         self.indices = list(range(len(self.inputs)))
@@ -358,7 +355,7 @@ def main():
 
         accelerator.project_configuration.automatic_checkpoint_naming = False
 
-        wandb.init(project="Text to Audio Diffusion")
+        wandb.init(project="Text to Music Diffusion")
 
     accelerator.wait_for_everyone()
 
@@ -367,8 +364,8 @@ def main():
     if args.train_file is not None:
         data_files["train"] = args.train_file
     if args.validation_file is not None:
-        data_files["validation"] = args.validation_file
-        data_files["validation2"] = args.validation_file2#NEW
+        data_files["validation"] = args.validation_file #one file can be without any control sentences in text prompts
+        data_files["validation2"] = args.validation_file2 #another file can have all control sentences inside prompts
 
     if args.test_file is not None:
         data_files["test"] = args.test_file
@@ -384,11 +381,11 @@ def main():
     vae, stft = build_pretrained_models(pretrained_model_name)
     vae.eval()
     stft.eval()
-    if args.model_type=='Tango' or args.model_type=='Audioldm':
+    if args.model_type=='Tango':
         model = AudioDiffusion(
             args.text_encoder_name, args.scheduler_name, args.unet_model_name, args.unet_model_config, args.snr_gamma, args.freeze_text_encoder, args.uncondition
         )
-    elif args.model_type=='TangoMusic' or args.model_type=='AudioldmMusic':
+    elif args.model_type=='Mustango':
         model = MusicAudioDiffusion(
             args.text_encoder_name, args.scheduler_name, args.unet_model_name, args.unet_model_config, args.snr_gamma, args.freeze_text_encoder, args.uncondition
         )
@@ -404,18 +401,18 @@ def main():
         prefix = ""
 
     with accelerator.main_process_first():
-        if args.augmented_dataset:
-            train_dataset = Text2AudioDataset_ext(raw_datasets["train"], prefix, text_column, text2_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples) #upd
+        if args.random_pick_text_column:
+            train_dataset = Text2AudioDataset_ext(raw_datasets["train"], prefix, text_column, text2_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples) #using both text columns
         else:
-            train_dataset = Text2AudioDataset(raw_datasets["train"], prefix, text_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples)
+            train_dataset = Text2AudioDataset(raw_datasets["train"], prefix, text_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples) #using single text column
         eval_dataset = Text2AudioDataset(raw_datasets["validation"], prefix, text_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples)
         eval_dataset2 = Text2AudioDataset(raw_datasets["validation2"], prefix, text_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples)
         test_dataset = Text2AudioDataset(raw_datasets["test"], prefix, text_column, audio_column, beats_column, chords_column, chords_time_column, args.num_examples)
         accelerator.print("Num instances in train: {}, validation: {}, test: {}".format(train_dataset.get_num_instances(), eval_dataset.get_num_instances(), test_dataset.get_num_instances()))
 
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=args.per_device_train_batch_size, collate_fn=train_dataset.collate_fn)
-    eval_dataloader = DataLoader(eval_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, collate_fn=eval_dataset.collate_fn)
-    eval_dataloader2 = DataLoader(eval_dataset2, shuffle=False, batch_size=args.per_device_eval_batch_size, collate_fn=eval_dataset.collate_fn)
+    eval_dataloader = DataLoader(eval_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, collate_fn=eval_dataset.collate_fn) #to monitor loss on prompts without control sentences
+    eval_dataloader2 = DataLoader(eval_dataset2, shuffle=False, batch_size=args.per_device_eval_batch_size, collate_fn=eval_dataset.collate_fn) #to monitor loss on prompts with all control sentences
     test_dataloader = DataLoader(test_dataset, shuffle=False, batch_size=args.per_device_eval_batch_size, collate_fn=test_dataset.collate_fn)
 
     # Optimizer
@@ -423,16 +420,13 @@ def main():
         for param in model.text_encoder.parameters():
             param.requires_grad = False
             model.text_encoder.eval()
-        if "clap" in args.text_encoder_name:
-            for param in model.audio_encoder.parameters():
-                param.requires_grad = False
-                model.audio_encoder.eval()
+
         if args.unet_model_config:
             if args.model_type=='Tango':
                 optimizer_parameters = model.unet.parameters()
                 accelerator.print("Optimizing UNet parameters.")
 
-            elif args.model_type=='TangoMusic':
+            elif args.model_type=='Mustango':
                 optimizer_parameters = list(model.unet.parameters()) + list(model.beat_embedding_layer.parameters()) + list(model.chord_embedding_layer.parameters())
                 accelerator.print("Optimizing MUNet, beat_emb, and chord_emb layer parameters.")
         else:
@@ -452,13 +446,6 @@ def main():
         eps=args.adam_epsilon,
     )
 
-    # vae, stft, model = accelerator.prepare(
-    #     vae, stft, model
-    # )
-
-    # optimizer = bnb.optim.Adam8bit(optimizer_parameters, lr=args.learning_rate, betas=(args.adam_beta1, args.adam_beta2)) # add bnb optimizer
-    # optimizer = Adafactor(optimizer_parameters, lr=args.learning_rate, scale_parameter=False, relative_step=False)
-
     # Scheduler and math around the number of training steps.
     overrode_max_train_steps = False
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
@@ -473,18 +460,10 @@ def main():
         num_training_steps=args.max_train_steps * args.gradient_accumulation_steps,
     )
 
-    # optimizer, lr_scheduler  = accelerator.prepare(
-        # optimizer, lr_scheduler
-    # )
     # Prepare everything with our `accelerator`.
     vae, stft, model, optimizer, lr_scheduler = accelerator.prepare(
         vae, stft, model, optimizer, lr_scheduler
     )
-    # print("checking model", model)
-    # print("check device", model.parameters())
-    # for name, param in model.named_parameters():
-    #     if not param.requires_grad:
-    #         print(name, param.data.device)
 
     train_dataloader, eval_dataloader, eval_dataloader2, test_dataloader = accelerator.prepare(
         train_dataloader, eval_dataloader, eval_dataloader2, test_dataloader
@@ -540,13 +519,14 @@ def main():
             
     # Duration of the audio clips in seconds
     duration, best_loss = 10, np.inf
-    if args.drop_sentences:
+
+    if args.drop_sentences: #option to drop a portion of sentences during train dataloading with a random probability, described in Section 5.2 as dropout number 3
         print('Drop_sentence is set to True, initializing spacy sentencizer')
         nlp = English()
         nlp.add_pipe("sentencizer")
         sent_lengths=[]
         for step, batch in enumerate(train_dataloader):
-            if args.augmented_dataset:
+            if args.random_pick_text_column:
                 text, text2, audios, beats, chords, chords_time, _ = batch
             else:
                 text, audios, beats, chords, chords_time, _ = batch
@@ -563,7 +543,7 @@ def main():
             with accelerator.accumulate(model):
                 device = model.device
                 target_length = int(duration * 102.4)
-                if args.augmented_dataset:
+                if args.random_pick_text_column:
                     text, text2, audios, beats, chords, chords_time, _ = batch
                     # with X prob, choose text or text2 (chatgpt vs original)
                     if (random.random()<0.15): #in 15% of augmented cases, take original prompts, in 85% take chatgpt
@@ -575,7 +555,7 @@ def main():
                     text, audios, beats, chords, chords_time, _ = batch
 
                 
-                if args.drop_sentences:
+                if args.drop_sentences:  #described in Section 5.2 as dropout number 3
                     text_out=[]
                     for i in range(len(text)):
                         sentences = list(nlp(text[i]).sents)
@@ -593,7 +573,7 @@ def main():
                         else:
                             text_out.append(text[i])
                     text=text_out
-                if args.uncondition_new:
+                if args.uncondition_all: # described in Section 5.2 as dropout number 1
                     for i in range(len(text)):
                         if (random.random()<0.05): #5% chance to drop it all
                             text[i]=""
@@ -601,21 +581,7 @@ def main():
                             chords[i]=[]
                             chords_time[i]=[]
 
-                        # if (random.random()<0.05): #5% chance to drop it all
-                        #     text=""
-                        #     beats=[[[],[]]]
-                        #     chords=[[]]
-                        #     chords_time=[[]]
-                        #     print('this is after uncond',text)
-
-                if args.uncondition_single: #5% chance to drop single ones only...
-                    # if (random.random()<0.05):
-                    #     text=""
-                    # if (random.random()<0.05):
-                    #     beats=[[[],[]]]
-                    # if (random.random()<0.05):
-                    #     chords=[[]]
-                    #     chords_time=[[]]
+                if args.uncondition_single: #5% chance to drop single ones only... described in Section 5.2 as dropout number 2
                     for i in range(len(text)):
                         if (random.random()<0.05):
                             text[i]=""
@@ -630,18 +596,11 @@ def main():
                     mel, _, waveform = torch_tools.wav_to_fbank(audios, target_length, stft)
                     mel = mel.unsqueeze(1).to(device) #batch, 1, time, freq; [2, 1, 1024, 64]
                     true_latent = unwrapped_vae.get_first_stage_encoding(unwrapped_vae.encode_first_stage(mel)) #batch, channels, time_compressed, freq_compressed [2, 8, 256, 16]
-                
-                if "clap" in args.text_encoder_name:
-                    # print('text is',type(text),text)
-                    # text=mel
-                    text=waveform.cpu()
-                    print('waveform')
-                    # print('mel is',type(mel),mel)
 
                 if args.model_type=='Tango':
                     loss = model(true_latent, text, validation_mode=False) 
-                elif args.model_type=='TangoMusic':
-                    loss = model(true_latent, text, beats, chords,chords_time, validation_mode=False) # need to pass the audio here instead of `text`
+                elif args.model_type=='Mustango':
+                    loss = model(true_latent, text, beats, chords, chords_time, validation_mode=False) # need to pass the audio here instead of `text`
                 total_loss += loss.detach().float()
                 accelerator.backward(loss)
                 optimizer.step()
@@ -678,13 +637,10 @@ def main():
                 mel = mel.unsqueeze(1).to(device)
                 true_latent = unwrapped_vae.get_first_stage_encoding(unwrapped_vae.encode_first_stage(mel))
 
-                if "clap" in args.text_encoder_name:
-                    text=mel
-
                 if args.model_type=='Tango':
                     val_loss = model(true_latent, text, validation_mode=True)
-                elif args.model_type=='TangoMusic':
-                    val_loss = model(true_latent, text, beats, chords,chords_time, validation_mode=True)
+                elif args.model_type=='Mustango':
+                    val_loss = model(true_latent, text, beats, chords, chords_time, validation_mode=True)
 
                 total_val_loss += val_loss.detach().float()
                 eval_progress_bar.update(1)
@@ -701,13 +657,10 @@ def main():
                 mel = mel.unsqueeze(1).to(device)
                 true_latent = unwrapped_vae.get_first_stage_encoding(unwrapped_vae.encode_first_stage(mel))
 
-                if "clap" in args.text_encoder_name:
-                    text=mel
-
                 if args.model_type=='Tango':
                     val_loss2 = model(true_latent, text, validation_mode=True)
-                elif args.model_type=='TangoMusic':
-                    val_loss2 = model(true_latent, text, beats, chords,chords_time, validation_mode=True)
+                elif args.model_type=='Mustango':
+                    val_loss2 = model(true_latent, text, beats, chords, chords_time, validation_mode=True)
 
                 total_val_loss2 += val_loss2.detach().float()
                 eval_progress_bar2.update(1)

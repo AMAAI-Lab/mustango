@@ -98,11 +98,6 @@ class AudioDiffusion(nn.Module):
 		elif "t5" in self.text_encoder_name:
 			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
 			self.text_encoder = T5EncoderModel.from_pretrained(self.text_encoder_name)
-		elif "clap" in self.text_encoder_name:
-			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
-			self.text_encoder = ClapTextModel.from_pretrained(self.text_encoder_name)
-			self.audio_processor = AutoProcessor.from_pretrained(self.text_encoder_name)
-			self.audio_encoder = ClapAudioModel.from_pretrained(self.text_encoder_name)
 		else:
 			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
 			self.text_encoder = AutoModel.from_pretrained(self.text_encoder_name)
@@ -131,45 +126,6 @@ class AudioDiffusion(nn.Module):
 		snr = (alpha / sigma) ** 2
 		return snr
 
-	def encode_audio(self, audio):
-		audio=audio.transpose(0,1).squeeze(1).cpu()
-		print('this is audio', audio, audio.shape)
-		device = self.audio_encoder.device
-		self.audio_processor.return_attention_mask=True
-		self.audio_processor.feature_extractor.return_attention_mask=True
-		batch = self.audio_processor.feature_extractor(
-			audio, return_tensors="pt", return_attention_mask=True
-		)
-		print('this is batch', batch)
-		batch=batch.input_features.to(device)
-		# input_ids, attention_mask = batch.input_ids.to(device), batch.attention_mask.to(device)
-
-		# if self.freeze_text_encoder:
-		# 	with torch.no_grad():
-		# 		encoder_hidden_states = self.audio_encoder(
-		# 			input_ids=input_ids, attention_mask=attention_mask
-		# 		)[0]
-		# 		encoder_hidden_states, mask = self.audio_encoder(audio)[0]
-		# else:
-		# 	encoder_hidden_states = self.audio_encoder(
-		# 		input_ids=input_ids, attention_mask=attention_mask
-		# 	)[0]
-		# print('this is mask',mask)
-
-
-		if self.freeze_text_encoder:
-			with torch.no_grad():
-				encoder_hidden_states = self.audio_encoder(
-					batch,
-				)[0]
-				# encoder_hidden_states, mask = self.audio_encoder(audio)[0]
-		else:
-			encoder_hidden_states = self.audio_encoder(
-				input_ids=input_ids, attention_mask=attention_mask
-			)[0]
-		# boolean_encoder_mask = (attention_mask == 1).to(device)
-		return encoder_hidden_states#, boolean_encoder_mask
-
 	def encode_text(self, prompt):
 		device = self.text_encoder.device
 		batch = self.tokenizer(
@@ -195,16 +151,7 @@ class AudioDiffusion(nn.Module):
 		num_train_timesteps = self.noise_scheduler.num_train_timesteps
 		self.noise_scheduler.set_timesteps(num_train_timesteps, device=device)
 
-		if "clap" in self.text_encoder_name:
-			if validation_mode:
-				encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
-			else:
-				encoder_hidden_states = self.encode_audio(prompt)
-		else:
-			encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
-
-		# print('HID STATES',encoder_hidden_states,encoder_hidden_states.shape)
-		# print('ATTN MASK',boolean_encoder_mask,boolean_encoder_mask.shape)
+		encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
 
 		if self.uncondition:
 			mask_indices = [k for k in range(len(prompt)) if random.random() < 0.1]
@@ -233,15 +180,10 @@ class AudioDiffusion(nn.Module):
 			raise ValueError(f"Unknown prediction type {self.noise_scheduler.config.prediction_type}")
 
 		if self.set_from == "random":
-			if "clap" in self.text_encoder_name:
-				model_pred = self.unet(
-					noisy_latents, timesteps, encoder_hidden_states, encoder_attention_mask=boolean_encoder_mask
-				).sample
-			else:
-				model_pred = self.unet(
-					noisy_latents, timesteps, encoder_hidden_states, 
-					encoder_attention_mask=boolean_encoder_mask
-				).sample
+			model_pred = self.unet(
+				noisy_latents, timesteps, encoder_hidden_states, 
+				encoder_attention_mask=boolean_encoder_mask
+			).sample
 
 		elif self.set_from == "pre-trained":
 			compressed_latents = self.group_in(noisy_latents.permute(0, 2, 3, 1).contiguous()).permute(0, 3, 1, 2).contiguous()
@@ -428,11 +370,6 @@ class MusicAudioDiffusion(nn.Module):
 		elif "t5" in self.text_encoder_name:
 			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
 			self.text_encoder = T5EncoderModel.from_pretrained(self.text_encoder_name)
-		elif "clap" in self.text_encoder_name:
-			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
-			self.text_encoder = ClapTextModel.from_pretrained(self.text_encoder_name)
-			self.audio_processor = AutoProcessor.from_pretrained(self.text_encoder_name)
-			self.audio_encoder = ClapAudioModel.from_pretrained(self.text_encoder_name)
 		else:
 			self.tokenizer = AutoTokenizer.from_pretrained(self.text_encoder_name)
 			self.text_encoder = AutoModel.from_pretrained(self.text_encoder_name)
@@ -472,39 +409,6 @@ class MusicAudioDiffusion(nn.Module):
 		snr = (alpha / sigma) ** 2
 		return snr
 
-	def encode_audio(self, audio):
-		device = self.audio_encoder.device
-		batch = self.audio_processor(
-			audio, max_length=self.tokenizer.model_max_length, padding=True, truncation=True, return_tensors="pt"
-		)
-		print('this is batch',batch)
-		# batch = batch.to(device)
-		input_ids, attention_mask = batch.input_ids.to(device), batch.attention_mask.to(device)
-		print('this is input ids', input_ids, input_ids.shape)
-		print('this is att', attention_mask, attention_mask.shape)
-
-		if self.freeze_text_encoder:
-			with torch.no_grad():
-				encoder_hidden_states = self.audio_encoder(
-					input_ids, attention_mask
-				)[0]
-		else:
-			encoder_hidden_states = self.audio_encoder(
-				input_ids, attention_mask
-			)[0]
-
-		# if self.freeze_text_encoder:
-		# 	with torch.no_grad():
-		# 		encoder_hidden_states = self.audio_encoder(**batch)[0]
-		# else:
-		# 	encoder_hidden_states = self.audio_encoder(
-		# 		batch
-		# 	)[0]
-
-
-		boolean_encoder_mask = (attention_mask == 1).to(device)
-		return encoder_hidden_states, boolean_encoder_mask
-
 	def encode_text(self, prompt):
 		device = self.text_encoder.device
 		batch = self.tokenizer(
@@ -533,14 +437,12 @@ class MusicAudioDiffusion(nn.Module):
 			out_beat.append(tokenized_beats)
 			out_beat_timing.append(tokenized_beats_timing)
 			out_mask.append(tokenized_beat_mask)
-		# out_beat, out_beat_timing, out_mask = torch.tensor(out_beat).to(device), torch.tensor(out_beat_timing).to(device), torch.tensor(out_mask).to(device) #batch, len_beat
 		out_beat, out_beat_timing, out_mask = torch.tensor(out_beat).cuda(), torch.tensor(out_beat_timing).cuda(), torch.tensor(out_mask).cuda() #batch, len_beat
 		embedded_beat = self.beat_embedding_layer(out_beat, out_beat_timing)
 
 		return embedded_beat, out_mask
 
-	def encode_chords(self, chords,chords_time): #TODO
-		
+	def encode_chords(self, chords,chords_time):
 		out_chord_root = []
 		out_chord_type = []
 		out_chord_inv = []
@@ -565,26 +467,12 @@ class MusicAudioDiffusion(nn.Module):
 		num_train_timesteps = self.noise_scheduler.num_train_timesteps
 		self.noise_scheduler.set_timesteps(num_train_timesteps, device=device)
 
-		if "clap" in self.text_encoder_name:
-			if validation_mode:
-				encoder_hidden_states, boolean_encoder_mask = self.encode_audio(prompt)
-			else:
-				encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
-		else:
-			encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
+		encoder_hidden_states, boolean_encoder_mask = self.encode_text(prompt)
 		
 		# with torch.no_grad():
 		encoded_beats, beat_mask = self.encode_beats(beats) #batch, len_beats, dim; batch, len_beats
-			# print(f"encoder_hidden_states:{encoder_hidden_states.shape},boolean_encoder_mask:{boolean_encoder_mask.shape}, encoded_beats:{encoded_beats.shape}, beat_mask:{beat_mask.shape} ")
 		encoded_chords, chord_mask = self.encode_chords(chords,chords_time)
-		# encoded_chords, chord_mask = encoded_beats, beat_mask #TODO
 
-		# encoded_beats, beat_mask = encoded_chords, chord_mask
-
-		# print('enco HS',encoder_hidden_states, ' tpye',type(encoder_hidden_states))
-		# print('enco bs',encoded_beats, ' tpye',type(encoded_beats), ' shape', encoded_beats.size())
-		# print('enco cs',encoded_chords, ' tpye',type(encoded_chords), ' shape', encoded_chords.size())
-		# print('enco hs',encoder_hidden_states, ' tpye',type(encoder_hidden_states), ' shape', encoder_hidden_states.size())
 
 		if self.uncondition:
 			mask_indices = [k for k in range(len(prompt)) if random.random() < 0.1]
@@ -593,16 +481,11 @@ class MusicAudioDiffusion(nn.Module):
 				encoded_chords[mask_indices] = 0
 				encoded_beats[mask_indices] = 0
 
-		# print('enco HS2',encoder_hidden_states[0])
-		# encoder_hidden_states[0]=0
-		# print('enco HS3',encoder_hidden_states)
-
 		bsz = latents.shape[0]
 
 		if validation_mode:
 			timesteps = (self.noise_scheduler.num_train_timesteps//2) * torch.ones((bsz,), dtype=torch.int64, device=device)
 		else:
-
 			timesteps = torch.randint(0, self.noise_scheduler.num_train_timesteps, (bsz,), device=device)
 		
 		
@@ -659,13 +542,7 @@ class MusicAudioDiffusion(nn.Module):
 		if classifier_free_guidance:
 			prompt_embeds, boolean_prompt_mask = self.encode_text_classifier_free(prompt, num_samples_per_prompt)
 			encoded_beats, beat_mask = self.encode_beats_classifier_free(beats, num_samples_per_prompt) #batch, len_beats, dim; batch, len_beats
-			# encoded_beats, beat_mask = self.encode_beats(beats) #batch, len_beats, dim; batch, len_beats
 			encoded_chords, chord_mask = self.encode_chords_classifier_free(chords, chords_time, num_samples_per_prompt)
-			# encoded_chords, chord_mask = self.encode_chords(chords,chords_time)
-
-			#Nic TODO: check with DEEP
-			# encoded_beats, beat_mask = torch.cat((encoded_beats, encoded_beats)), torch.cat((beat_mask, beat_mask))
-			# encoded_chords, chord_mask = torch.cat((encoded_chords, encoded_chords)), torch.cat((chord_mask, chord_mask))
 		else:
 			prompt_embeds, boolean_prompt_mask = self.encode_text(prompt)
 			prompt_embeds = prompt_embeds.repeat_interleave(num_samples_per_prompt, 0)
@@ -767,11 +644,6 @@ class MusicAudioDiffusion(nn.Module):
 	
 
 	def encode_beats_classifier_free(self, beats, num_samples_per_prompt):
-		# device = self.text_encoder.device
-		# batch = self.tokenizer(
-		# 	prompt, max_length=self.tokenizer.model_max_length, padding=True, truncation=True, return_tensors="pt"
-		# )
-		# input_ids, attention_mask = batch.input_ids.to(device), batch.attention_mask.to(device)
 		with torch.no_grad():
 			out_beat = []
 			out_beat_timing = []
@@ -787,17 +659,6 @@ class MusicAudioDiffusion(nn.Module):
 		embedded_beat = embedded_beat.repeat_interleave(num_samples_per_prompt, 0)
 		out_mask = out_mask.repeat_interleave(num_samples_per_prompt, 0)
 
-
-		# with torch.no_grad():
-		# 	prompt_embeds = self.text_encoder(
-		# 		input_ids=input_ids, attention_mask=attention_mask
-		# 	)[0]
-				
-		# prompt_embeds = prompt_embeds.repeat_interleave(num_samples_per_prompt, 0)
-		# attention_mask = attention_mask.repeat_interleave(num_samples_per_prompt, 0)
-
-		# get unconditional embeddings for classifier free guidance
-		# print(len(beats), 'this is beats len')
 		uncond_beats = [[[],[]]] * len(beats)
 
 		max_length = embedded_beat.shape[1]
@@ -816,39 +677,14 @@ class MusicAudioDiffusion(nn.Module):
 		embedded_beat_unc = embedded_beat_unc.repeat_interleave(num_samples_per_prompt, 0)
 		out_mask_unc = out_mask_unc.repeat_interleave(num_samples_per_prompt, 0)
 
-		# uncond_batch = self.tokenizer(
-		# 	uncond_tokens, max_length=max_length, padding="max_length", truncation=True, return_tensors="pt",
-		# )
-		# uncond_input_ids = uncond_batch.input_ids.to(device)
-		# uncond_attention_mask = uncond_batch.attention_mask.to(device)
-
-		# with torch.no_grad():
-		# 	negative_prompt_embeds = self.text_encoder(
-		# 		input_ids=uncond_input_ids, attention_mask=uncond_attention_mask
-		# 	)[0]
-				
-		# negative_prompt_embeds = negative_prompt_embeds.repeat_interleave(num_samples_per_prompt, 0)
-		# uncond_attention_mask = uncond_attention_mask.repeat_interleave(num_samples_per_prompt, 0)
-
-		# For classifier free guidance, we need to do two forward passes.
-		# We concatenate the unconditional and text embeddings into a single batch to avoid doing two forward passes
-		# prompt_embeds = torch.cat([negative_prompt_embeds, prompt_embeds])
-		# prompt_mask = torch.cat([uncond_attention_mask, attention_mask])
-		# boolean_prompt_mask = (prompt_mask == 1).to(device)
 		embedded_beat = torch.cat([embedded_beat_unc, embedded_beat])
 		out_mask = torch.cat([out_mask_unc, out_mask])
-		# boolean_prompt_mask = (prompt_mask == 1).to(device)
 
 		return embedded_beat, out_mask
 
-		# return prompt_embeds, boolean_prompt_mask
 
 	def encode_chords_classifier_free(self, chords, chords_time, num_samples_per_prompt):
-		# device = self.text_encoder.device
-		# batch = self.tokenizer(
-		# 	prompt, max_length=self.tokenizer.model_max_length, padding=True, truncation=True, return_tensors="pt"
-		# )
-		# input_ids, attention_mask = batch.input_ids.to(device), batch.attention_mask.to(device)
+
 		with torch.no_grad():
 			out_chord_root = []
 			out_chord_type = []
@@ -865,13 +701,8 @@ class MusicAudioDiffusion(nn.Module):
 			out_chord_root, out_chord_type, out_chord_inv, out_chord_timing, out_mask = torch.tensor(out_chord_root).cuda(), torch.tensor(out_chord_type).cuda(), torch.tensor(out_chord_inv).cuda(), torch.tensor(out_chord_timing).cuda(), torch.tensor(out_mask).cuda()
 			embedded_chord = self.chord_embedding_layer(out_chord_root, out_chord_type, out_chord_inv, out_chord_timing)
 		
-
 		embedded_chord = embedded_chord.repeat_interleave(num_samples_per_prompt, 0)
 		out_mask = out_mask.repeat_interleave(num_samples_per_prompt, 0)
-
-		# get unconditional embeddings for classifier free guidance
-		# print(len(chords), 'this is chords len')
-		# print(len(chords_time), 'this is chords_time len')
 
 		chords_unc=[[]] * len(chords)
 		chords_time_unc=[[]] * len(chords_time)
