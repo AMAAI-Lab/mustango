@@ -81,12 +81,14 @@ class Music_PositionalEncoding(nn.Module):
 		pe[:, 0, 0::2] = torch.sin(position * div_term)
 		pe[:, 0, 1::2] = torch.cos(position * div_term)
 		self.register_buffer('pe', pe)
+		'''
 		if self.if_global_timing:
 			print("pe add global time")
 		if self.if_modulo_timing:
 			print("pe add modulo time")
 		if self.if_index:
 			print("pe add idx")
+		'''
 	def forward(self, inp,dur_onset_cumsum = None):
 
 		if self.if_index:

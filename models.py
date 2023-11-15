@@ -556,7 +556,7 @@ class MusicAudioDiffusion(nn.Module):
 			encoded_chords = encoded_chords.repeat_interleave(num_samples_per_prompt, 0)
 			chord_mask = chord_mask.repeat_interleave(num_samples_per_prompt, 0)
 
-		print(f"encoded_chords:{encoded_chords.shape}, chord_mask:{chord_mask.shape}, prompt_embeds:{prompt_embeds.shape},boolean_prompt_mask:{boolean_prompt_mask.shape} ")
+		# print(f"encoded_chords:{encoded_chords.shape}, chord_mask:{chord_mask.shape}, prompt_embeds:{prompt_embeds.shape},boolean_prompt_mask:{boolean_prompt_mask.shape} ")
 		inference_scheduler.set_timesteps(num_steps, device=device)
 		timesteps = inference_scheduler.timesteps
 
