@@ -93,7 +93,7 @@ class MusicFeaturePredictor:
         return predicted_beats, predicted_chords, predicted_chords_times
     
     
-class MusTango:
+class Mustango:
     
     def __init__(self, name="declare-lab/mustango", device="cuda:0"):
         
