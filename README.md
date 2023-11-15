@@ -66,10 +66,6 @@ The arguments `--uncondition_all`, `--uncondition_single`, `--drop_sentences` co
 
 Recommended training time from scratch on MusicBench is at least 40 epochs.
 
-## Inference
-
-Coming soon!
-
 
 ## Model Zoo
 
