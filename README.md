@@ -8,5 +8,5 @@
 The description goes here.
 
 <div align="center">
-  <img src="images/jpg" width="500"/>
+  <img src="mustango.jpg" width="500"/>
 </div>
