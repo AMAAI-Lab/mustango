@@ -1,8 +1,8 @@
 <div align="center">
 
-# Mustango
+# Mustango: Toward Controllable Text-to-Music Generation
 
-[Demo]() [Model]() [Website and Examples]() [Paper]()
+[Demo]() [Model]() [Website and Examples](https://dorienherremans.com/mustango) [Paper]()
 </div>
 
 With recent advancements in text-to-audio and text-to-music based on latent diffusion models, the quality of generated content has been reaching new heights. The controllability of musical aspects, however, has not been explicitly explored in text-to-music systems yet.
@@ -14,3 +14,10 @@ Through extensive experiments, we show that the quality of the music generated b
 <div align="center">
   <img src="mustango.jpg" width="500"/>
 </div>
+
+
+## Citation
+Please consider citing the following article if you found our work useful:
+```
+bibtext coming
+```
