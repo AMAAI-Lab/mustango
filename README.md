@@ -2,7 +2,7 @@
 
 # Mustango
 
-[Demo](Our demo will soon be on Replicate!)
+[Demo]()
 </div>
 
 The description goes here.
