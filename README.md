@@ -38,15 +38,19 @@ accelerate launch train.py \
 --text_encoder_name="google/flan-t5-large" \
 --scheduler_name="stabilityai/stable-diffusion-2-1" \
 --unet_model_config="configs/diffusion_model_config_munet.json" \
---freeze_text_encoder --uncondition_all --uncondition_single \
+--model_type Mustango --freeze_text_encoder --uncondition_all --uncondition_single \
 --drop_sentences --random_pick_text_column --snr_gamma 5 \
 ```
+
+The `--model_type` flag allows to choose either Mustango, or Tango to be trained with the same code. However, do note that you also need to change `--unet_model_config` to the relevant config: diffusion_model_config_munet for Mustango; diffusion_model_config for Tango.
 
 The arguments `--uncondition_all`, `--uncondition_single`, `--drop_sentences` control the dropout functions as per Section 5.2 in our paper. The argument of `--random_pick_text_column` allows to randomly pick between two input text prompts - in the case of MusicBench, we pick between ChatGPT rephrased captions and original enhanced MusicCaps prompts, as depicted in Figure 1 in our paper.
 
 Recommended training time from scratch on MusicBench is at least 40 epochs.
 
+## Inference
 
+Coming soon
 
 
 ## Citation
