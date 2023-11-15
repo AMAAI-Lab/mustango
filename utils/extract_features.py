@@ -19,31 +19,20 @@ from essentia.standard import MonoLoader, KeyExtractor
 import pyrubberband as pyrb
 from glob import glob
 # config_path = "/666/TANGO/gh/text2music/config/music_feat_extrator_config.yaml"
-config_path = "/666/TANGO/tango/configs/music_feat_extrator_config.yaml"
+config_path = "../configs/music_feat_extrator_config.yaml"
 
 with open (config_path, 'r') as f:
     cfg = yaml.safe_load(f)
 
 
-
-#load json, follow one by one
-#extract chords
-#extract beats
-#save them (as an array, or as a new triplet json)
-#add a new prompt for time signature and chord progression
-
-# output_path='/666/TANGO/music-caps/data_enhanced'
-# data_path='/666/TANGO/gh/text2music/outputs/CTRLpreds_1696678534_trinitydrops-MC3aug_epoch_72_steps_200_guidance_3'
-# data_path='/666/TANGO/gh/text2music/outputs/FMATangoMCHFB_1699707309_666_TANGO_gh_text2music_saved_TangoMusiccapsHF_steps_200_guidance_3'
-data_path='/666/TANGO/gh/text2music/outputs/ELT30TMP_1699506735_666_TANGO_gh_text2music_saved_tangomusic_pretrained_epoch_30_steps_200_guidance_3'
+# output_path='/music-caps/data_enhanced'
+data_path='outputs/Mustango_expert_listening_samples'
 
 # ref_file='/666/TANGO/gh/text2music/data/MC3LH_testB_preds.json'
-ref_file='/666/TANGO/gh/text2music/data/expert_listening_test_predictions.json'
+ref_file='data/expert_listening_test_predictions.json'
 # os.makedirs(output_path,exist_ok=True)
 
 out_json_path=ref_file.split('.')[0]+"TMP30.json"
-# out_json_path='/666/TANGO/music-caps/output_ctrl3_feats.json'
-# json_continue_source='/666/TANGO/music-caps/train_musiccaps_ep.json'
 
 beat_estimator = BeatNet(1, mode='offline', inference_model='DBN', plot=["beat_particles"], thread=False)
 beat_processor = BeatProcessor(beat_estimator, **cfg['beat_processor'])
@@ -139,9 +128,3 @@ with open(ref_file, encoding='utf-8') as ref:
 
             print(i)
             i+=1
-
-
-
-
-
-# paths = glob.glob(cfg['data_path']+"/*.wav")[:2]
