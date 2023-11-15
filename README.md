@@ -15,6 +15,15 @@ Meet Mustango, an exciting addition to the vibrant landscape of Multimodal Large
 ## Datasets
 
 The [MusicBench](https://huggingface.co/datasets/amaai-lab/MusicBench) dataset contains 52k music fragments with a rich music-specific text caption. 
+## Subjective Evaluation by Expert Listeners
+
+| **Model** | **Dataset** | **Pre-trained** | **REL** ↑ | **MCM** ↑ | **MTM** ↑ | **AQ** ↑ | **OM** ↑ | **RP** ↑ | **HC** ↑ |
+|-----------|-------------|-----------------|-----------|-----------|-----------|----------|----------|----------|----------|
+| Tango     | MusicCaps   | ✓               | 4.35      | 2.75      | 3.88      | 3.35     | 2.83     | 3.95     | 3.84     |
+| Tango     | MusicBench  | ✓               | 4.91      | 3.61      | 3.86      | 3.88     | 3.54     | 4.01     | 4.34     |
+| Mustango  | MusicBench  | ✓               | 5.49      | 5.76      | 4.98      | 4.30     | 4.28     | 4.65     | 5.18     |
+| Mustango  | MusicBench  | ✗               | 5.75      | 6.06      | 5.11      | 4.80     | 4.80     | 4.75     | 5.59     |
+
 
 ## Citation
 Please consider citing the following article if you found our work useful:
