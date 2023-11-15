@@ -68,7 +68,15 @@ Recommended training time from scratch on MusicBench is at least 40 epochs.
 
 ## Inference
 
-Coming soon
+Coming soon!
+
+
+## Model
+
+We have released the following models:
+
+Mustango Pretrained: https://huggingface.co/declare-lab/mustango
+Mustango: Coming soon!
 
 
 ## Citation
