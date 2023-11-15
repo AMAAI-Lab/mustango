@@ -71,7 +71,7 @@ Recommended training time from scratch on MusicBench is at least 40 epochs.
 Coming soon!
 
 
-## Model
+## Model Zoo
 
 We have released the following models:
 
