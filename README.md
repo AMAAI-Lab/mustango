@@ -2,7 +2,7 @@
 
 # Mustango: Toward Controllable Text-to-Music Generation
 
-[Demo]() [Model]() [Website and Examples](https://dorienherremans.com/mustango) [Paper]()
+[Demo]() [Model]() [Website and Examples](https://amaai-lab.github.io/mustango/) [Paper](https://arxiv.org/abs/2311.08355)
 </div>
 
 With recent advancements in text-to-audio and text-to-music based on latent diffusion models, the quality of generated content has been reaching new heights. The controllability of musical aspects, however, has not been explicitly explored in text-to-music systems yet.
