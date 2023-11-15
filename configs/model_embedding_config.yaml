@@ -1,0 +1,21 @@
+FME_embedding_conf:
+    d_model: 256
+    type: "se" #nn, se, one_hot, nn_pretrain
+    base: 9919
+    if_trainable: True
+    translation_bias_type: "nd" #2d or nd trainable vector/ None
+    device: cpu
+    emb_nn: True
+Position_encoding_conf:
+    d_model: 256
+    if_index: True
+    if_global_timing: True
+    if_modulo_timing: False
+    device: cpu
+Chord_Embedding_conf:
+    d_model: 256
+    d_oh_type: 10
+    d_oh_inv: 10
+Beat_Embedding_conf:
+    d_model: 256
+    d_oh_beat_type: 7

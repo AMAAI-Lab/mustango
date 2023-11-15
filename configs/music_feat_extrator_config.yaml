@@ -1,0 +1,8 @@
+data_path: /666/TANGO/music-caps/data
+beat_processor:
+  if_aux_click: False
+  aux_click_save_path: "/666/TANGO/music-caps/augouts"
+chord_processor:
+  if_process_group: False
+key_extraction:
+  correlation_threshold: 0.5

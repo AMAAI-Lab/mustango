@@ -1,0 +1,89 @@
+Namespace(lr=1e-05, wd=0.0, warm_up_steps=0, adam_epsilon=1e-08, bs=8, eval_bs=8, epochs=8, name='microsoft/deberta-v3-large', seed=42, save=False, samples=-1, exp_id='1687227609')
+
+Epoch 1: Classification Loss: Train 1.1592, Val 1.1159, Test 0.9951; Regression Loss: Train 0.4849, Val 0.2323, Test 0.0757
+Accuracy: Train 36.08, Val 34.05, Test 38.44; F1: Train 35.19, Val 32.48, Test 36.02
+
+Valid Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.40      0.15      0.21     15048
+           2       0.43      0.44      0.44     15043
+           3       0.29      0.32      0.31      9158
+           4       0.25      0.65      0.36      4948
+
+    accuracy                           0.34     44197
+   macro avg       0.34      0.39      0.33     44197
+weighted avg       0.37      0.34      0.32     44197
+
+
+Test Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.42      0.16      0.23       824
+           2       0.45      0.58      0.51       823
+           3       0.32      0.31      0.32       356
+           4       0.24      0.70      0.36       151
+
+    accuracy                           0.38      2154
+   macro avg       0.36      0.44      0.35      2154
+weighted avg       0.41      0.38      0.36      2154
+
+
+Epoch 2: Classification Loss: Train 1.0686, Val 1.1153, Test 0.9942; Regression Loss: Train 0.2654, Val 0.2312, Test 0.0849
+Accuracy: Train 36.21, Val 33.67, Test 38.44; F1: Train 36.39, Val 32.72, Test 36.49
+
+Valid Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.37      0.16      0.23     15048
+           2       0.42      0.43      0.43     15043
+           3       0.29      0.41      0.34      9158
+           4       0.24      0.44      0.31      4948
+
+    accuracy                           0.34     44197
+   macro avg       0.33      0.36      0.32     44197
+weighted avg       0.36      0.34      0.33     44197
+
+
+Test Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.41      0.17      0.24       824
+           2       0.46      0.57      0.51       823
+           3       0.29      0.44      0.35       356
+           4       0.26      0.42      0.32       151
+
+    accuracy                           0.38      2154
+   macro avg       0.35      0.40      0.35      2154
+weighted avg       0.40      0.38      0.36      2154
+
+
+Epoch 3: Classification Loss: Train 1.0667, Val 1.1157, Test 0.9937; Regression Loss: Train 0.247, Val 0.2331, Test 0.0884
+Accuracy: Train 36.29, Val 33.72, Test 37.98; F1: Train 36.46, Val 33.22, Test 37.63
+
+Valid Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.44      0.20      0.27     15048
+           2       0.43      0.35      0.39     15043
+           3       0.29      0.39      0.33      9158
+           4       0.24      0.63      0.35      4948
+
+    accuracy                           0.34     44197
+   macro avg       0.35      0.39      0.33     44197
+weighted avg       0.38      0.34      0.33     44197
+
+
+Test Classification Report:
+              precision    recall  f1-score   support
+
+           1       0.45      0.24      0.31       824
+           2       0.46      0.44      0.45       823
+           3       0.30      0.45      0.36       356
+           4       0.24      0.66      0.35       151
+
+    accuracy                           0.38      2154
+   macro avg       0.37      0.45      0.37      2154
+weighted avg       0.42      0.38      0.38      2154
+
+

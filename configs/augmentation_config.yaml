@@ -1,0 +1,22 @@
+augmentation:
+  if_only_one_type: True
+  out_path: "/666/TANGO/music-caps/augouts"
+  random: False
+  number_of_runs: [1, 3, 4, 1, 1, 1] #for random False
+  aug_distribution: [0.3, 0.4, 0.1, 0.1, 0.1] # in case of random True
+  crop: 10 #at x sec
+full_speed_change:
+  low_range : 1.05
+  high_range: 1.25
+full_pitch_shift:
+  semitone_range: 6
+pitch_shift:
+  semitone_range: 12
+  number_of_changes: 1
+speed_change:
+  low_range : 1.1
+  high_range: 2.0
+  number_of_changes: 1
+volume_change:
+  number_of_changes: 1
+  exponential: True
