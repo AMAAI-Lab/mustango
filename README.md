@@ -2,7 +2,7 @@
 
 # Mustango
 
-[Demo]()
+[Demo]() [Model]() [Website and Examples]() [Paper]()
 </div>
 
 The description goes here.
