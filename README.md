@@ -25,6 +25,30 @@ The [MusicBench](https://huggingface.co/datasets/amaai-lab/MusicBench) dataset c
 | Mustango  | MusicBench  | ✗               | 5.75      | 6.06      | 5.11      | 4.80     | 4.80     | 4.75     | 5.59     |
 
 
+
+
+## Training
+
+We use the `accelerate` package from Hugging Face for multi-gpu training. Run `accelerate config` from terminal and set up your run configuration by the answering the questions asked.
+
+You can now train **Mustango** on the MusicBench dataset using:
+
+```bash
+accelerate launch train.py \
+--text_encoder_name="google/flan-t5-large" \
+--scheduler_name="stabilityai/stable-diffusion-2-1" \
+--unet_model_config="configs/diffusion_model_config_munet.json" \
+--freeze_text_encoder --uncondition_all --uncondition_single \
+--drop_sentences --random_pick_text_column --snr_gamma 5 \
+```
+
+The arguments `--uncondition_all`, `--uncondition_single`, `--drop_sentences` control the dropout functions as per Section 5.2 in our paper. The argument of `--random_pick_text_column` allows to randomly pick between two input text prompts - in the case of MusicBench, we pick between ChatGPT rephrased captions and original enhanced MusicCaps prompts, as depicted in Figure 1 in our paper.
+
+Recommended training time from scratch on MusicBench is at least 40 epochs.
+
+
+
+
 ## Citation
 Please consider citing the following article if you found our work useful:
 ```
