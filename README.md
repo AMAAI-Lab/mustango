@@ -12,6 +12,10 @@ Meet Mustango, an exciting addition to the vibrant landscape of Multimodal Large
 </div>
 
 
+## Datasets
+
+The [MusicBench](https://huggingface.co/datasets/amaai-lab/MusicBench) dataset contains 52k music fragments with a rich music-specific text caption. 
+
 ## Citation
 Please consider citing the following article if you found our work useful:
 ```
