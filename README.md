@@ -76,6 +76,8 @@ Coming soon!
 We have released the following models:
 
 Mustango Pretrained: https://huggingface.co/declare-lab/mustango
+
+
 Mustango: Coming soon!
 
 
