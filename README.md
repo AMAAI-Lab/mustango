@@ -2,7 +2,7 @@
 
 # Mustango: Toward Controllable Text-to-Music Generation
 
-[Demo]() [Model](https://huggingface.co/declare-lab/mustango) [Website and Examples](https://amaai-lab.github.io/mustango/) [Paper](https://arxiv.org/abs/2311.08355) [Dataset](https://huggingface.co/datasets/amaai-lab/MusicBench)
+[Demo](https://replicate.com/declare-lab/mustango) [Model](https://huggingface.co/declare-lab/mustango) [Website and Examples](https://amaai-lab.github.io/mustango/) [Paper](https://arxiv.org/abs/2311.08355) [Dataset](https://huggingface.co/datasets/amaai-lab/MusicBench)
 </div>
 
 Meet Mustango, an exciting addition to the vibrant landscape of Multimodal Large Language Models designed for controlled music generation. Mustango leverages Latent Diffusion Model (LDM), Flan-T5, and musical features to do the magic!
