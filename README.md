@@ -7,7 +7,7 @@
 
 Meet Mustango, an exciting addition to the vibrant landscape of Multimodal Large Language Models designed for controlled music generation. Mustango leverages Latent Diffusion Model (LDM), Flan-T5, and musical features to do the magic!
 
-🔥 Live demo available on [Replicate](https://huggingface.co/spaces/declare-lab/tango)
+🔥 Live demo available on [Replicate](https://huggingface.co/spaces/declare-lab/tango).
 
 <div align="center">
   <img src="img/mustango.jpg" width="500"/>
