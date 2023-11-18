@@ -2,12 +2,14 @@
 
 # Mustango: Toward Controllable Text-to-Music Generation
 
-[Demo](https://replicate.com/declare-lab/mustango) [Model](https://huggingface.co/declare-lab/mustango) [Website and Examples](https://amaai-lab.github.io/mustango/) [Paper](https://arxiv.org/abs/2311.08355) [Dataset](https://huggingface.co/datasets/amaai-lab/MusicBench)
+[Demo](https://replicate.com/declare-lab/mustango) [Model](https://huggingface.co/declare-lab/mustango) [Website and Examples](https://amaai-lab.github.io/mustango/) [Paper](https://arxiv.org/abs/2311.08355) [Dataset](https://huggingface.co/datasets/amaai-lab/MusicBench) [![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/akhaliq/yolov7)
+
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/declare-lab/mustango)
 </div>
 
 Meet Mustango, an exciting addition to the vibrant landscape of Multimodal Large Language Models designed for controlled music generation. Mustango leverages Latent Diffusion Model (LDM), Flan-T5, and musical features to do the magic!
 
-🔥 Live demo available on [Replicate](https://replicate.com/declare-lab/mustango).
+🔥 Live demo available on [Replicate](https://replicate.com/declare-lab/mustango) and [HuggingFace](https://huggingface.co/spaces/declare-lab/mustango).
 
 <div align="center">
   <img src="img/mustango.jpg" width="500"/>
