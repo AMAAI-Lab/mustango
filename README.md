@@ -32,6 +32,16 @@ sf.write(f"{prompt}.wav", audio, samplerate=16000)
 IPython.display.Audio(data=audio, rate=16000)
 ```
 
+## Installation
+
+```bash
+git clone https://github.com/AMAAI-Lab/mustango
+cd mustango
+pip install -r requirements.txt
+cd diffusers
+pip install -e .
+```
+
 ## Datasets
 
 The [MusicBench](https://huggingface.co/datasets/amaai-lab/MusicBench) dataset contains 52k music fragments with a rich music-specific text caption. 
