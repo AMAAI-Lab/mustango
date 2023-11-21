@@ -29,7 +29,7 @@ def build_pretrained_models(name):
 	
 	ckpt_path = get_metadata()[name]["path"]
 	if not os.path.exists(ckpt_path):
-        download_checkpoint(name)
+		download_checkpoint(name)
 
 	checkpoint = torch.load(ckpt_path, map_location="cpu")
 	scale_factor = checkpoint["state_dict"]["scale_factor"].item()
