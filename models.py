@@ -1,3 +1,4 @@
+import os
 import yaml
 import random
 import inspect
@@ -13,7 +14,7 @@ from tools.torch_tools import wav_to_fbank
 
 from audioldm.audio.stft import TacotronSTFT
 from audioldm.variational_autoencoder import AutoencoderKL
-from audioldm.utils import default_audioldm_config, get_metadata
+from audioldm.utils import default_audioldm_config, get_metadata, download_checkpoint
 
 from transformers import CLIPTokenizer, AutoTokenizer, AutoProcessor
 from transformers import CLIPTextModel, T5EncoderModel, AutoModel, ClapAudioModel, ClapTextModel
@@ -25,7 +26,12 @@ from diffusers import AutoencoderKL as DiffuserAutoencoderKL
 from layers.layers import chord_tokenizer, beat_tokenizer, Chord_Embedding, Beat_Embedding, Music_PositionalEncoding, Fundamental_Music_Embedding
 
 def build_pretrained_models(name):
-	checkpoint = torch.load(get_metadata()[name]["path"], map_location="cpu")
+	
+	ckpt_path = get_metadata()[name]["path"]
+	if not os.path.exists(ckpt_path):
+        download_checkpoint(name)
+
+	checkpoint = torch.load(ckpt_path, map_location="cpu")
 	scale_factor = checkpoint["state_dict"]["scale_factor"].item()
 
 	vae_state_dict = {k[18:]: v for k, v in checkpoint["state_dict"].items() if "first_stage_model." in k}
