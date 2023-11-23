@@ -31,7 +31,7 @@ prompt = "This is a new age piece. There is a flute playing the main melody with
 
 music = model.generate(prompt)
 sf.write(f"{prompt}.wav", audio, samplerate=16000)
-IPython.display.Audio(data=audio, rate=16000)
+IPython.display.Audio(data=music, rate=16000)
 ```
 
 ## Installation
