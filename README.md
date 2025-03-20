@@ -94,11 +94,11 @@ Mustango: https://huggingface.co/declare-lab/mustango
 ## Citation
 Please consider citing the following article if you found our work useful:
 ```
-@misc{melechovsky2023mustango,
-      title={Mustango: Toward Controllable Text-to-Music Generation}, 
-      author={Jan Melechovsky and Zixun Guo and Deepanway Ghosal and Navonil Majumder and Dorien Herremans and Soujanya Poria},
-      year={2023},
-      eprint={2311.08355},
-      archivePrefix={arXiv},
+@inproceedings{melechovsky2024mustango,
+  title={Mustango: Toward Controllable Text-to-Music Generation},
+  author={Melechovsky, Jan and Guo, Zixun and Ghosal, Deepanway and Majumder, Navonil and Herremans, Dorien and Poria, Soujanya},
+  booktitle={Proceedings of the 2024 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)},
+  pages={8286--8309},
+  year={2024}
 }
 ```
